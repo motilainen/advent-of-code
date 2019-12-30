@@ -18,5 +18,8 @@
   "bugs": {
     "url": "https://github.com/motilainen/advent-of-code/issues"
   },
-  "homepage": "https://github.com/motilainen/advent-of-code#readme"
+  "homepage": "https://github.com/motilainen/advent-of-code#readme",
+  "dependencies": {
+    "canvas": "^2.6.1"
+  }
 }
