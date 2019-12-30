@@ -18,7 +18,7 @@ function run(integers, position = 0) {
         case 2:
             console.log("Multiplying", val1, val2)
             integers[outputIdx] = val1 * val2;
-        break;
+            break;
         case 99:
             console.log("Code 99. Exiting.")
             return integers
@@ -30,5 +30,28 @@ function run(integers, position = 0) {
     return run(integers, position)
 }
 
+function findValue(value) {
+    // address 0 = output
+    // address 1 = noun
+    // address 2 = verb
+    
+    for (let i = 0; i < 100; i++) {
+        let newInput = resetInput();
+        for (let p = 0; p < 100; p++) {
+            newInput[2] = p;
+            newInput[1] = i;
+            const [result, noun, verb] = run(newInput)
+            if (result === value) return [result, noun, verb]
+            newInput = resetInput()
+        }
+    }
+}
+
+function resetInput() {
+    return [...input];
+}
+
 const result = run(input)
+const values = findValue(19690720)
+console.log("values", values)
 console.log("result", result)
