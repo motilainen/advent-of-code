@@ -1,7 +1,6 @@
-// const input = "254032-789860"
+
 const min = 254032
 const max = 789860
-// const max = 789860
 let passwords = []
 
 for (let pw = min; pw < max; pw++) {
@@ -10,9 +9,7 @@ for (let pw = min; pw < max; pw++) {
         console.log("valid", pw)
     }
 }
-
 console.log("Total ", passwords.length)
-
 
 function isValid(num) {
     if (!numberIncreases(num)) return false
@@ -31,8 +28,15 @@ function numberIncreases(num) {
 
 function hasAdjacentNum(num) {
     const str = num.toString().split("").map(n => parseInt(n))
+    let occurences = {}
     for (let i = 0; i < str.length; i++) {
-        if (str[i] == str[i + 1]) return true
+        if (str[i] == str[i + 1]) {
+            occurences[str[i]] = (occurences[str[i]] || 1) + 1
+        }
     }
-    return false
+    if (Object.keys(occurences).length > 1) {
+        const match = Object.values(occurences).some(value => value === 2)
+        return match
+    }
+    return Object.values(occurences)[0] == 2
 }
