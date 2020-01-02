@@ -17,6 +17,8 @@ const out = fs.createWriteStream(__dirname + '/wires.png')
 createMap([wire1, wire2])
 
 function createMap(wires) {
+  const start = new Date().getTime();
+
   let currentPosition = { x: 0, y: 0 }
   const [wire1, wire2] = wires
   const map1 = wire1.map(code => {
@@ -39,16 +41,22 @@ function createMap(wires) {
   
   console.log("Wire 2 done.")
   
-  let crossingPoints = [];
   // const [w1, w2] = Promise.all([getPoints(map1), getPoints(map2)])
   const w1 = getPoints(map1)
   const w2 = getPoints(map2)
-
+  let crossingPoints = []
+  
   const points = getCrossingPoints(w1, w2)
   if (points) crossingPoints.push(...points)
-
   console.log("crossing points", crossingPoints)
+  const closest = findClosest(crossingPoints)
+  console.log("Closest point ", closest)
   crossingPoints.forEach(point => draw(point, point, "cyan"))
+
+  const ms = new Date().getTime() - start
+  const ss = Math.floor(ms / 1000)
+  const mm = Math.floor(ss / 60 / 1000)
+  console.log(`Finished in ${mm}:${ss}`);
   
   const stream = canvas.createPNGStream()
   stream.pipe(out)
@@ -79,7 +87,7 @@ function getPosition(code, coordinates) {
   return { x, y }
 }
 
-function draw(lastPosition, currentPosition, color = "blue", code) {
+function draw(lastPosition, currentPosition, color) {
   const isStartPoint = (lastPosition.x === 0 && lastPosition.y === 0) || false
   const lastX = lastPosition.x + 250
   const lastY = lastPosition.y + 250
@@ -90,19 +98,16 @@ function draw(lastPosition, currentPosition, color = "blue", code) {
   ctx.strokeStyle = color
   if (isStartPoint) {
     ctx.font = "16px Arial";
-    // ctx.fillText("x", lastX - 4, lastY + 4);
+    ctx.fillText("x", lastX - 4, lastY + 4);
   } else {
-    ctx.font = "16px Arial";
     ctx.fillRect(lastX - 1, lastY - 1, 2, 2)
   }
-  // ctx.fillText(code, x - 4, y + 4);
   ctx.moveTo(lastX, lastY);
   ctx.lineTo(x, y)
   ctx.stroke()
 }
 
 function getPoints(wire) {
-    // const points = pointsBetween(lastPosition, currentPosition)
     let w = [...wire]
     let segments = []
 
@@ -116,17 +121,16 @@ function getPoints(wire) {
       }
     }
     return segments
-  
 }
-function getCrossingPoints(wire1, wire2) {
 
+function getCrossingPoints(wire1, wire2) {
   let matches = []
-  // matches = points.filter(w1 => {
-  //   return line2Points.some(w2 => w1.x === w2.x && w1.y === w2.y)
-  // })
   for (const p of wire1) {
     for (const l of wire2) {
-      if (p.x == l.x && p.y == l.y) matches.push({ ...p })
+      if (p.x == l.x && p.y == l.y) {
+        const distance = Math.abs(p.x) + Math.abs(p.y)
+        matches.push({ ...p, distance })
+      } 
     }
   }
   return matches
@@ -145,4 +149,12 @@ function pointsBetween(line1, line2) {
     }
   }
   return points
+}
+
+function findClosest(crossingPoints) {
+  return crossingPoints
+    .reduce((prev, curr) => 
+      Math.abs(curr.distance - 0) < Math.abs(prev.distance - 0)
+      ? curr 
+      : prev, crossingPoints[0])
 }
